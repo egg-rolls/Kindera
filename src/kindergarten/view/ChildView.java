@@ -5,7 +5,7 @@ import kindergarten.entity.ClassInfo;
 import kindergarten.entity.ChildCourse;
 import kindergarten.service.ChildService;
 import kindergarten.service.CourseService;
-import kindergarten.dao.ClassDao;
+import kindergarten.service.ClassService;
 import kindergarten.util.InputUtil;
 
 import java.util.List;
@@ -21,7 +21,7 @@ import java.util.List;
 public class ChildView {
     private final ChildService childService = new ChildService();
     private final CourseService courseService = new CourseService();
-    private final ClassDao classDao = new ClassDao();
+    private final ClassService classService = new ClassService();
 
     /**
      * 显示幼儿学籍管理菜单
@@ -64,16 +64,45 @@ public class ChildView {
 
     /** 按班级查看幼儿 */
     private void showChildrenByClass() {
-        List<ClassInfo> classes = classDao.selectAll();
+        List<ClassInfo> classes = classService.getAllClasses();
         System.out.println("\n  可选班级：");
         for (ClassInfo cls : classes) {
             System.out.printf("    %d. %s（%s）- %d人\n",
                 cls.getId(), cls.getClassName(), cls.getGrade(), cls.getCurrentCount());
         }
-        int classId = InputUtil.readInt("  请输入班级ID：", 1, 9);
+        System.out.println("  提示：输入班级编号（1-9）或班级名称（如\"大一班\"）");
+        String input = InputUtil.readNonEmpty("  请输入班级：");
+
+        int classId = -1;
+        String title = "班级幼儿名单";
+
+        // 尝试解析为数字
+        try {
+            classId = Integer.parseInt(input.trim());
+        } catch (NumberFormatException e) {
+            // 不是数字，按班级名称匹配
+            for (ClassInfo cls : classes) {
+                if (cls.getClassName().contains(input.trim()) || input.trim().contains(cls.getClassName())) {
+                    classId = cls.getId();
+                    title = cls.getClassName() + " 幼儿名单";
+                    break;
+                }
+            }
+        }
+
+        if (classId < 1 || classId > 9) {
+            System.out.println("  ✗ 未找到匹配的班级");
+            return;
+        }
+
+        // 如果是数字输入，获取班级名称
+        if (title.equals("班级幼儿名单")) {
+            final int targetClassId = classId;
+            ClassInfo cls = classes.stream().filter(c -> c.getId().equals(targetClassId)).findFirst().orElse(null);
+            title = cls != null ? cls.getClassName() + " 幼儿名单" : "班级幼儿名单";
+        }
+
         List<Child> children = childService.getChildrenByClass(classId);
-        ClassInfo cls = classes.stream().filter(c -> c.getId().equals(classId)).findFirst().orElse(null);
-        String title = cls != null ? cls.getClassName() + " 幼儿名单" : "班级幼儿名单";
         printChildTable(title, children);
     }
 
@@ -132,7 +161,7 @@ public class ChildView {
         child.setParentPhone(InputUtil.readPhone("  家长电话："));
 
         // 显示可选班级
-        List<ClassInfo> classes = classDao.selectAll();
+        List<ClassInfo> classes = classService.getAllClasses();
         System.out.println("  可选班级：");
         for (ClassInfo cls : classes) {
             System.out.printf("    %d. %s（%d/%d人）\n",

@@ -32,4 +32,14 @@ public class ClassService {
     public java.util.List<ClassInfo> getAllClasses() {
         return classDao.selectAll();
     }
+
+    /**
+     * 根据班级名称模糊查询
+     *
+     * @param name 班级名称关键字
+     * @return 班级列表
+     */
+    public java.util.List<ClassInfo> searchByName(String name) {
+        return classDao.selectByName(name);
+    }
 }
