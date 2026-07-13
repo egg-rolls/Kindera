@@ -1,25 +1,20 @@
 #!/bin/bash
-# 一键构建部署脚本
+# 一键构建部署脚本（使用 Docker 运行 Maven）
 set -e
 
 echo "══════ 幼儿园管理系统 Docker 部署 ══════"
 
-# 1. 本地构建后端 jar
-echo "[1/3] 构建后端..."
-cd backend
-mvn clean package -DskipTests -q
-cd ..
+# 1. 用 Docker 运行 Maven 构建后端
+echo "[1/3] 构建后端（Docker Maven）..."
+docker run --rm \
+  -v "$(pwd)/backend":/usr/src/app \
+  -w /usr/src/app \
+  maven:3.9.6-eclipse-temurin-17 \
+  mvn clean package -DskipTests -q
 echo "  ✓ 后端构建完成"
 
-# 2. 安装前端依赖
-echo "[2/3] 构建前端..."
-cd frontend
-npm install -q 2>/dev/null
-cd ..
-echo "  ✓ 前端构建完成"
-
-# 3. Docker Compose 启动
-echo "[3/3] 启动 Docker 服务..."
+# 2. Docker Compose 启动所有服务
+echo "[2/3] 启动 Docker 服务..."
 docker compose up -d --build
 echo "  ✓ 服务启动完成"
 
