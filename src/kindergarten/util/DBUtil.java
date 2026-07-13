@@ -13,17 +13,23 @@ import java.sql.*;
  */
 public class DBUtil {
 
+    /** 数据库主机（支持环境变量覆盖） */
+    private static final String HOST = System.getenv().getOrDefault("DB_HOST", "localhost");
+
+    /** 数据库端口 */
+    private static final String PORT = System.getenv().getOrDefault("DB_PORT", "3306");
+
     /** MySQL连接地址（不指定数据库，初始化时需要创建数据库） */
-    private static final String BASE_URL = "jdbc:mysql://localhost:3306?useSSL=false&serverTimezone=Asia/Shanghai&characterEncoding=utf8&allowPublicKeyRetrieval=true";
+    private static final String BASE_URL = "jdbc:mysql://" + HOST + ":" + PORT + "?useSSL=false&serverTimezone=Asia/Shanghai&characterEncoding=utf8&allowPublicKeyRetrieval=true";
 
     /** 指定kindergarten数据库的连接地址 */
-    private static final String URL = "jdbc:mysql://localhost:3306/kindergarten?useSSL=false&serverTimezone=Asia/Shanghai&characterEncoding=utf8&allowPublicKeyRetrieval=true";
+    private static final String URL = "jdbc:mysql://" + HOST + ":" + PORT + "/kindergarten?useSSL=false&serverTimezone=Asia/Shanghai&characterEncoding=utf8&allowPublicKeyRetrieval=true";
 
     /** 数据库用户名 */
-    private static final String USERNAME = "root";
+    private static final String USERNAME = System.getenv().getOrDefault("DB_USERNAME", "root");
 
     /** 数据库密码（部署时需根据实际环境修改） */
-    private static final String PASSWORD = "lirui520";
+    private static final String PASSWORD = System.getenv().getOrDefault("DB_PASSWORD", "lirui520");
 
     /**
      * 获取基础连接（不指定数据库，用于创建数据库）
