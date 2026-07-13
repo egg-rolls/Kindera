@@ -22,9 +22,11 @@ services:
     networks:
       - kindergarten-net
 
-  # Spring Boot 后端
+  # Spring Boot 后端（需先本地构建 jar）
   backend:
-    build: ./backend
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
     container_name: kindergarten-backend
     ports:
       - "8080:8080"

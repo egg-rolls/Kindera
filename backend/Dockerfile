@@ -1,12 +1,6 @@
-FROM maven:3-eclipse-temurin-8 AS build
-WORKDIR /app
-COPY pom.xml .
-RUN mvn dependency:go-offline
-COPY src ./src
-RUN mvn package -DskipTests
-
+# 直接使用预构建的 jar，不依赖 Maven 镜像
 FROM eclipse-temurin:8-jre
 WORKDIR /app
-COPY --from=build /app/target/*.jar app.jar
+COPY target/*.jar app.jar
 EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "app.jar"]
