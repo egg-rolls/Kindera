@@ -3,21 +3,33 @@
 ## 快速开始
 
 ### 前提条件
-- Docker 20.0+
-- Docker Compose 2.0+
+- Docker Desktop 已安装并启动
 
 ### 一键部署
 
+**Windows (PowerShell):**
+```powershell
+.\build.ps1
+```
+
+**Windows (CMD):**
+```cmd
+build.bat
+```
+
+**Linux/Mac:**
 ```bash
-# 克隆项目
-git clone https://github.com/egg-rolls/20260708.git
-cd 20260708
+bash docker-build.sh
+```
 
-# 启动所有服务
-docker-compose up -d
+### 手动部署
 
-# 查看运行状态
-docker-compose ps
+```bash
+# 1. 使用 Docker 运行 Maven 构建后端
+docker run --rm -v "$(pwd)/backend:/app" -w /app amazoncorretto:8 sh -c "curl -sL https://dlcdn.apache.org/maven/maven-3/3.8.8/binaries/apache-maven-3.8.8-bin.tar.gz | tar xz -C /opt && /opt/apache-maven-3.8.8/bin/mvn clean package -DskipTests"
+
+# 2. 启动所有服务
+docker compose up -d --build
 ```
 
 ### 访问地址
@@ -38,43 +50,27 @@ docker-compose ps
 ## 常用命令
 
 ```bash
-# 启动服务
-docker-compose up -d
-
-# 停止服务
-docker-compose down
+# 查看运行状态
+docker compose ps
 
 # 查看日志
-docker-compose logs -f backend
+docker compose logs -f backend
 
-# 重建并启动
-docker-compose up -d --build
+# 停止服务
+docker compose down
 
 # 清理数据（删除数据库）
-docker-compose down -v
+docker compose down -v
+
+# 重建并启动
+docker compose up -d --build
 ```
 
-## 开发模式
+## 使用的 Docker 镜像
 
-### 后端开发
-```bash
-cd backend
-mvn spring-boot:run
-```
-
-### 前端开发
-```bash
-cd frontend
-npm install
-npm run dev
-```
-
-## 架构说明
-
-```
-┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
-│   Vue 3 前端     │────▶│  Spring Boot    │────▶│   MySQL 数据库   │
-│  (Nginx容器)     │     │   (Java容器)     │     │  (MySQL容器)     │
-│   Port: 80      │     │   Port: 8080    │     │   Port: 3306    │
-└─────────────────┘     └─────────────────┘     └─────────────────┘
-```
+| 服务 | 镜像 | 说明 |
+|------|------|------|
+| 后端运行时 | amazoncorretto:8-alpine-jre | Amazon JDK 8 JRE |
+| 前端构建 | node:18-alpine | Node.js 18 |
+| 前端运行时 | nginx:alpine | Nginx |
+| 数据库 | mysql:8.0 | MySQL 8.0 |

@@ -1,5 +1,5 @@
-# 直接使用预构建的 jar
-FROM eclipse-temurin:17-jre
+# 直接复制预构建的 jar
+FROM amazoncorretto:8-alpine-jre
 WORKDIR /app
 COPY target/*.jar app.jar
 EXPOSE 8080
