@@ -1,85 +1,81 @@
 # 幼儿园管理系统
 
-> Java控制台应用程序 — 课程大作业
+> 全栈Web应用 — 课程大作业
 
 ## 项目概述
 
 幼儿园管理系统，实现幼儿学籍管理、课程管理、食谱管理、调班管理、考勤管理、数据统计等功能。
 
-- **开发语言：** Java 8+
-- **数据库：** MySQL 8.x
-- **架构：** 分层架构（View → Service → DAO → Entity）
-- **界面：** 控制台（Console）
+- **后端：** Spring Boot 2.7.18 / Java 8 / MySQL 8.0
+- **前端：** Vue 3 / Vite / Element Plus
+- **部署：** Docker Compose（MySQL + Spring Boot + Nginx）
+- **架构：** 前后端分离（REST API）
 
 ## 环境要求
 
-1. **JDK 8+** — `java -version` 确认可用
-2. **MySQL 8.0+** — 确保MySQL服务已启动
-3. **MySQL Connector/J** — JDBC驱动jar包
+### Docker 部署（推荐）
+- **Docker Desktop** — 已安装并启动
+
+### 本地开发
+- **JDK 8+** — `java -version` 确认可用
+- **Maven 3.6+** — `mvn -version` 确认可用
+- **Node.js 18+** — `node -v` 确认可用
+- **MySQL 8.0+** — 确保MySQL服务已启动
 
 ## 快速开始
 
-### 1. 准备MySQL JDBC驱动
-
-下载 `mysql-connector-j-8.0.xx.jar`，放入项目 `lib/` 目录。
-
-下载地址：https://dev.mysql.com/downloads/connector/j/
-
-### 2. 配置数据库连接
-
-编辑 `src/kindergarten/util/DBUtil.java`，修改以下配置：
-
-```java
-private static final String USERNAME = "root";      // 你的MySQL用户名
-private static final String PASSWORD = "lirui520";   // 你的MySQL密码（部署时需修改）
-```
-
-### 3. 编译
+### Docker Compose 部署（推荐）
 
 ```bash
-# 在项目根目录执行
+# 1. 克隆仓库
+git clone https://github.com/egg-rolls/20260708.git
+cd 20260708
 
-# Windows (PowerShell):
-javac -encoding UTF-8 -d out -cp "lib/*" (Get-ChildItem -Path "src" -Filter "*.java" -Recurse | ForEach-Object { $_.FullName })
+# 2. 一键启动
+docker compose up -d --build
 
-# Windows (CMD):
-for /r src %f in (*.java) do @echo %f | javac -encoding UTF-8 -d out -cp "lib/*" @files.txt
+# 3. 访问系统
+# 前端页面：http://localhost
+# 后端API：http://localhost:8080
+```
 
-# Windows (Git Bash) / macOS/Linux:
+### 本地开发
+
+#### 后端开发
+
+```bash
+cd backend
+
+# 使用 Maven 构建
+mvn clean package -DskipTests
+
+# 运行后端
+java -jar target/kindergarten-management-1.0.0.jar
+```
+
+#### 前端开发
+
+```bash
+cd frontend
+
+# 安装依赖
+npm install
+
+# 启动开发服务器
+npm run dev
+
+# 构建生产版本
+npm run build
+```
+
+### 旧版控制台程序
+
+```bash
+# 编译
 javac -encoding UTF-8 -d out -cp "lib/*" src/kindergarten/**/*.java
-```
 
-### 4. 运行主程序
-
-```bash
-# Windows (PowerShell):
+# 运行
 java -Xmx256m -Xms64m -cp "out;lib/*" kindergarten.Main
-
-# Windows (CMD):
-java -Xmx256m -Xms64m -cp "out;lib/*" kindergarten.Main
-
-# macOS/Linux:
-java -Xmx256m -Xms64m -cp "out:lib/*" kindergarten.Main
-```
-
-### 5. 运行测试
-
-```bash
-# 编译测试文件（PowerShell）
-javac -encoding UTF-8 -d out -cp "out;lib/*" (Get-ChildItem -Path "tests" -Filter "*.java" -Recurse | ForEach-Object { $_.FullName })
-
-# 编译测试文件（Git Bash / macOS/Linux）
-javac -encoding UTF-8 -d out -cp "out;lib/*" tests/kindergarten/*.java
-
-# 运行单个测试（示例）
-java -Xmx256m -Xms64m -cp "out;lib/*" kindergarten.InitDatabaseTest
-java -Xmx256m -Xms64m -cp "out;lib/*" kindergarten.UserDaoTest
-java -Xmx256m -Xms64m -cp "out;lib/*" kindergarten.ChildDaoTest
-java -Xmx256m -Xms64m -cp "out;lib/*" kindergarten.ChildServiceTest
-java -Xmx256m -Xms64m -cp "out;lib/*" kindergarten.CourseServiceTest
-java -Xmx256m -Xms64m -cp "out;lib/*" kindergarten.AttendanceServiceTest
-java -Xmx256m -Xms64m -cp "out;lib/*" kindergarten.TransferServiceTest
-java -Xmx256m -Xms64m -cp "out;lib/*" kindergarten.StatisticsServiceTest
 ```
 
 ## 预置账号
@@ -117,25 +113,49 @@ java -Xmx256m -Xms64m -cp "out;lib/*" kindergarten.StatisticsServiceTest
 ## 项目结构
 
 ```
+├── backend/                        Spring Boot 后端
+│   ├── src/main/java/kindergarten/
+│   │   ├── controller/             REST API 控制器
+│   │   ├── service/                业务逻辑层
+│   │   ├── dao/                    数据访问层
+│   │   ├── entity/                 实体类
+│   │   ├── config/                 配置类
+│   │   └── util/                   工具类
+│   └── pom.xml                     Maven 配置
+├── frontend/                       Vue 3 前端
+│   ├── src/
+│   │   ├── views/                  页面组件
+│   │   ├── api/                    API 封装
+│   │   └── router/                 路由配置
+│   └── package.json                npm 配置
+├── docs/                           项目文档
+├── docker-compose.yml              Docker 编排配置
 ├── PLAN.md                         开发计划
 ├── README.md                       本文件
-├── docs/                           项目文档
-│   ├── PRD-产品需求文档.md
-│   ├── PBD-产品边界文档.md
-│   └── SPEC-技术规格文档.md
-├── lib/                            第三方jar包
-│   └── mysql-connector-j-8.0.xx.jar
-├── src/                            源代码
-│   └── kindergarten/
-│       ├── Main.java               程序入口
-│       ├── entity/                 实体层（9个类）
-│       ├── dao/                    数据访问层（9个类）
-│       ├── service/                业务逻辑层（7个类）
-│       ├── view/                   表现层（10个类）
-│       └── util/                   工具层（3个类）
-└── tests/                          测试代码
-    └── kindergarten/               8个测试类
+└── src/                            旧版控制台程序源码
 ```
+
+## API 端点
+
+| 路径 | 方法 | 说明 |
+|------|------|------|
+| `/api/auth/login` | POST | 用户登录 |
+| `/api/children` | GET/POST/PUT/DELETE | 幼儿管理 |
+| `/api/classes` | GET | 班级查询 |
+| `/api/courses` | GET/POST/PUT/DELETE | 课程管理 |
+| `/api/menus` | GET/POST/PUT/DELETE | 食谱管理 |
+| `/api/attendance` | GET/POST | 考勤记录 |
+| `/api/attendance/batch` | POST | 批量考勤 |
+| `/api/transfers` | POST | 调班操作 |
+| `/api/statistics/*` | GET | 数据统计 |
+
+## Docker 服务
+
+| 服务 | 镜像 | 端口 | 说明 |
+|------|------|------|------|
+| mysql | mysql:8.0 | 3306 | MySQL 数据库 |
+| backend | kindergarten-backend | 8080 | Spring Boot API |
+| frontend | kindergarten-frontend | 80 | Nginx 静态托管 |
 
 ## 注意事项
 
@@ -144,4 +164,13 @@ java -Xmx256m -Xms64m -cp "out;lib/*" kindergarten.StatisticsServiceTest
 3. 删除幼儿为软删除（标记离园），不会物理删除记录
 4. 每个幼儿最多选4门兴趣课程
 5. 调班支持跨年级（如从小班调到中班）
-6. 控制台输入时请注意格式要求（日期：yyyy-MM-dd，性别：M/F）
+6. Docker 部署时，数据库密码通过环境变量配置
+
+## 相关文档
+
+- [产品需求文档](docs/PRD-产品需求文档.md)
+- [产品边界文档](docs/PBD-产品边界文档.md)
+- [技术规格文档](docs/SPEC-技术规格文档.md)
+- [Docker 部署指南](DOCKER.md)
+- [贡献指南](CONTRIBUTING.md)
+- [更新日志](CHANGELOG.md)

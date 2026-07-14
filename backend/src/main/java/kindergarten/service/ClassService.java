@@ -2,6 +2,7 @@ package kindergarten.service;
 
 import kindergarten.dao.ClassDao;
 import kindergarten.entity.ClassInfo;
+import org.springframework.stereotype.Service;
 
 /**
  * 班级业务逻辑层
@@ -11,6 +12,7 @@ import kindergarten.entity.ClassInfo;
  * @version 1.0
  * @description 封装班级相关的业务查询操作
  */
+@Service
 public class ClassService {
     private final ClassDao classDao = new ClassDao();
 

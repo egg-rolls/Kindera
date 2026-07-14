@@ -105,6 +105,28 @@ public class MenuDao {
     }
 
     /**
+     * 删除单条食谱记录
+     *
+     * @param id 记录ID
+     * @return 影响行数
+     */
+    public int deleteById(int id) {
+        String sql = "DELETE FROM t_weekly_menu WHERE id = ?";
+        Connection conn = null;
+        PreparedStatement ps = null;
+        try {
+            conn = DBUtil.getConnection();
+            ps = conn.prepareStatement(sql);
+            ps.setInt(1, id);
+            return ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new DataAccessException("删除食谱失败", e);
+        } finally {
+            DBUtil.close(conn, ps);
+        }
+    }
+
+    /**
      * 批量插入一周食谱
      *
      * @param menus 食谱列表

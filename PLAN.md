@@ -2,35 +2,45 @@
 
 > **项目名称：** Kindergarten Management System
 > **创建日期：** 2026-07-06
-> **完成日期：** 2026-07-06
-> **开发语言：** Java 8+
+> **最后更新：** 2026-07-13
+> **开发语言：** Java 8+ / JavaScript (Vue 3)
 > **数据库：** MySQL 8.x
-> **架构：** 分层架构（View → Service → DAO → Entity）
+> **架构：** 前后端分离（REST API）
 
 ---
 
 ## 项目结构
 
 ```
-大作业/
+幼儿园管理系统/
 ├── PLAN.md                          // 本文件
-├── README.md                        // 编译运行说明
+├── README.md                        // 项目说明
+├── DOCKER.md                        // Docker 部署指南
+├── CONTRIBUTING.md                  // 贡献指南
+├── CHANGELOG.md                     // 更新日志
 ├── docs/
 │   ├── PRD-产品需求文档.md
 │   ├── PBD-产品边界文档.md
-│   └── SPEC-技术规格文档.md
-├── lib/
-│   └── mysql-connector-j-8.0.xx.jar // MySQL JDBC驱动
-├── src/
-│   └── kindergarten/
-│       ├── Main.java                // 程序入口
-│       ├── entity/                  // 实体层（9个类）
-│       ├── dao/                     // 数据访问层（9个类）
-│       ├── service/                 // 业务逻辑层（7个类）
-│       ├── view/                    // 表现层（10个类）
-│       └── util/                    // 工具层（3个类）
-└── tests/
-    └── kindergarten/                // 测试类（8个）
+│   ├── SPEC-技术规格文档.md
+│   └── BUG-FIX-LOG.md
+├── backend/                         // Spring Boot 后端
+│   ├── src/main/java/kindergarten/
+│   │   ├── controller/              // REST API 控制器（8个）
+│   │   ├── service/                 // 业务逻辑层（7个）
+│   │   ├── dao/                     // 数据访问层（9个）
+│   │   ├── entity/                  // 实体类（9个）
+│   │   ├── config/                  // 配置类
+│   │   └── util/                    // 工具类
+│   └── pom.xml
+├── frontend/                        // Vue 3 前端
+│   ├── src/
+│   │   ├── views/                   // 页面组件（7个）
+│   │   ├── api/                     // API 封装
+│   │   └── router/                  // 路由配置
+│   └── package.json
+├── docker-compose.yml               // Docker 编排配置
+├── src/                             // 旧版控制台程序（legacy）
+└── tests/                           // 旧版测试代码
 ```
 
 ---
@@ -120,14 +130,52 @@
 - [x] `tests/kindergarten/AttendanceServiceTest.java` — 考勤测试
 - [x] `tests/kindergarten/TransferServiceTest.java` — 调班测试
 - [x] `tests/kindergarten/StatisticsServiceTest.java` — 统计测试
+- [x] `tests/kindergarten/EdgeCaseTest.java` — 边界情况测试
+- [x] `tests/kindergarten/SearchTest.java` — 搜索功能测试
+- [x] `tests/kindergarten/SearchVerifyTest.java` — 搜索验证测试
 
 ---
 
-## 阶段六：收尾 ✅
+## 阶段六：全栈 Web 应用 ✅
 
-- [x] `README.md` — 编译、运行、使用说明
-- [x] 全量编译验证
-- [x] 端到端功能走查
+### Step 6.1 — Spring Boot 后端
+- [x] `backend/src/main/java/kindergarten/controller/AuthController.java` — 认证控制器
+- [x] `backend/src/main/java/kindergarten/controller/ChildController.java` — 幼儿控制器
+- [x] `backend/src/main/java/kindergarten/controller/ClassController.java` — 班级控制器
+- [x] `backend/src/main/java/kindergarten/controller/CourseController.java` — 课程控制器
+- [x] `backend/src/main/java/kindergarten/controller/MenuController.java` — 食谱控制器
+- [x] `backend/src/main/java/kindergarten/controller/AttendanceController.java` — 考勤控制器
+- [x] `backend/src/main/java/kindergarten/controller/TransferController.java` — 调班控制器
+- [x] `backend/src/main/java/kindergarten/controller/StatisticsController.java` — 统计控制器
+
+### Step 6.2 — Vue 3 前端
+- [x] `frontend/src/views/Login.vue` — 登录页面
+- [x] `frontend/src/views/Layout.vue` — 布局组件
+- [x] `frontend/src/views/Dashboard.vue` — 仪表盘
+- [x] `frontend/src/views/Children.vue` — 幼儿管理
+- [x] `frontend/src/views/Courses.vue` — 课程管理
+- [x] `frontend/src/views/Menus.vue` — 食谱管理
+- [x] `frontend/src/views/Attendance.vue` — 考勤管理
+- [x] `frontend/src/views/Transfers.vue` — 调班管理
+- [x] `frontend/src/api/index.js` — API 封装
+- [x] `frontend/src/router/index.js` — 路由配置
+
+### Step 6.3 — Docker 部署
+- [x] `docker-compose.yml` — Docker 编排配置
+- [x] `backend/Dockerfile` — 后端镜像构建
+- [x] `frontend/Dockerfile` — 前端镜像构建
+- [x] `frontend/nginx.conf` — Nginx 配置
+
+---
+
+## 阶段七：文档完善 ✅
+
+- [x] `README.md` — 项目说明（更新为全栈应用）
+- [x] `CLAUDE.md` — Claude Code 指南
+- [x] `DOCKER.md` — Docker 部署指南
+- [x] `CONTRIBUTING.md` — 贡献指南
+- [x] `CHANGELOG.md` — 更新日志
+- [x] `PLAN.md` — 开发计划（本文件）
 
 ---
 
@@ -139,3 +187,22 @@
 4. ✅ 教师可完成考勤、查看等操作
 5. ✅ 所有测试类运行通过
 6. ✅ 每个类有完整注释（作者、日期、功能、版本）
+7. ✅ 前后端分离架构，REST API 完整
+8. ✅ Docker Compose 一键部署
+9. ✅ 项目文档完整
+
+---
+
+## 技术栈总结
+
+| 层级 | 技术 | 版本 |
+|------|------|------|
+| 后端框架 | Spring Boot | 2.7.18 |
+| 后端语言 | Java | 8 |
+| 数据库 | MySQL | 8.0 |
+| 前端框架 | Vue | 3.3.4 |
+| 构建工具 | Vite | 4.4.9 |
+| UI 组件库 | Element Plus | 2.3.12 |
+| HTTP 客户端 | Axios | 1.4.0 |
+| 容器化 | Docker Compose | - |
+| Web 服务器 | Nginx | Alpine |

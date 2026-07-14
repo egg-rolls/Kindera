@@ -4,50 +4,96 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## 项目概述
 
-幼儿园管理系统 — Java 控制台应用（课程大作业）。管理幼儿学籍、课程、食谱、调班、考勤和数据统计。
+幼儿园管理系统 — 全栈 Web 应用（课程大作业）。后端 Spring Boot REST API，前端 Vue 3 + Vite，Docker Compose 一键部署。管理幼儿学籍、课程、食谱、调班、考勤和数据统计。
+
+## 技术栈
+
+- **后端**：Spring Boot 2.7.18 / Java 8 / MySQL 8.0 / JDBC（无 ORM）
+- **前端**：Vue 3 / Vite / Element Plus / Vue Router / Axios
+- **部署**：Docker Compose（MySQL + Spring Boot + Nginx）
 
 ## 构建与运行命令
 
+### Docker Compose（推荐）
+
 ```bash
-# 编译（Git Bash / macOS/Linux）
+docker compose up --build        # 构建并启动全部服务
+docker compose down              # 停止并清理容器
+docker compose logs -f backend   # 查看后端日志
+```
+
+### 后端本地开发
+
+```bash
+cd backend
+mvn clean package -DskipTests     # 打包
+java -jar target/*.jar            # 运行（需本地 MySQL 3306）
+```
+
+### 前端本地开发
+
+```bash
+cd frontend
+npm install
+npm run dev                       # 开发服务器 localhost:5173
+npm run build                     # 生产构建
+```
+
+### 旧版控制台程序（legacy）
+
+```bash
 javac -encoding UTF-8 -d out -cp "lib/*" src/kindergarten/**/*.java
-
-# 编译（PowerShell）
-javac -encoding UTF-8 -d out -cp "lib/*" (Get-ChildItem -Path "src" -Filter "*.java" -Recurse | ForEach-Object { $_.FullName })
-
-# 运行主程序
 java -Xmx256m -Xms64m -cp "out;lib/*" kindergarten.Main
-
-# 编译测试
-javac -encoding UTF-8 -d out -cp "out;lib/*" tests/kindergarten/*.java
-
-# 运行单个测试（示例）
-java -Xmx256m -Xms64m -cp "out;lib/*" kindergarten.ChildServiceTest
 ```
 
 ## 架构
 
-分层架构，依赖方向严格单向：**View → Service → DAO → Entity**
+### 后端分层：Controller → Service → DAO → Entity
 
-- **entity/** — 纯数据类，对应数据库表。9 个实体：User, ClassInfo, Child, Course, ChildCourse, Dish, WeeklyMenu, Attendance, TransferLog
-- **dao/** — 数据访问层，直接操作 JDBC。每个 DAO 通过 `DBUtil.getConnection()` 获取连接，手动管理资源关闭
-- **service/** — 业务逻辑层，编排 DAO 调用。TransferService 包含事务管理。不直接操作数据库连接
-- **view/** — 控制台 UI 层，负责输入输出和菜单路由。通过 `InputUtil` 处理用户输入
-- **util/** — `DBUtil`（数据库连接）、`InputUtil`（控制台输入）、`InitDatabase`（首次运行自动建库建表+预置数据）
+- **controller/** — REST API 层，8 个控制器对应各业务模块
+- **service/** — 业务逻辑层，带 `@Service` 注解。TransferService 包含事务管理
+- **dao/** — 数据访问层，直接 JDBC。每个 DAO 通过 `DBUtil.getConnection()` 获取连接
+- **entity/** — 纯数据类（9 个实体：User, ClassInfo, Child, Course, ChildCourse, Dish, WeeklyMenu, Attendance, TransferLog）
+- **config/** — `CorsConfig`（跨域配置）、`WebConfig`（静态资源）
+- **util/** — `DBUtil`（数据库连接）、`PasswordUtil`（密码工具）
 
-程序入口：`Main.java` → `MainView.start()` → 根据用户角色路由到 `AdminView` 或 `TeacherView`。
+### 前端结构
+
+- `views/` — 页面组件（Login, Dashboard, Children, Courses, Menus, Attendance, Transfers）
+- `api/index.js` — Axios 封装，统一请求后端 `/api/*`
+- `router/index.js` — Vue Router 路由配置
+
+### Docker 部署
+
+- **mysql:8.0** — 端口 3306，数据卷 `mysql-data`
+- **backend** — Spring Boot JAR，端口 8080，依赖 MySQL 健康检查
+- **frontend** — Nginx 静态托管，端口 80，反向代理 `/api` 到后端
+
+## API 端点
+
+| 路径 | 方法 | 说明 |
+|------|------|------|
+| `/api/auth/login` | POST | 用户登录 |
+| `/api/children` | GET/POST/PUT/DELETE | 幼儿管理 |
+| `/api/classes` | GET | 班级查询 |
+| `/api/courses` | GET/POST/PUT/DELETE | 课程管理 |
+| `/api/menus` | GET/POST/PUT/DELETE | 食谱管理 |
+| `/api/attendance` | GET/POST | 考勤记录 |
+| `/api/attendance/batch` | POST | 批量考勤 |
+| `/api/transfers` | POST | 调班操作 |
+| `/api/statistics/*` | GET | 数据统计 |
 
 ## 关键设计决策
 
 - **数据库自动初始化**：首次运行时 `InitDatabase` 自动创建 `kindergarten` 数据库、9 张表并插入预置数据。使用 `CREATE IF NOT EXISTS`，已有数据时跳过
 - **软删除**：幼儿删除为逻辑删除（`status` 字段标记离园），不物理删除
-- **数据库配置**：在 `src/kindergarten/util/DBUtil.java` 中硬编码 USERNAME/PASSWORD，连接本地 MySQL 3306
+- **数据库配置**：通过环境变量 `SPRING_DATASOURCE_URL` / `DB_USERNAME` / `DB_PASSWORD` 配置，本地开发默认连接 localhost:3306
 - **选课限制**：每个幼儿最多选 4 门兴趣课程
-- **无第三方框架**：纯 JDBC，无 ORM；无测试框架，测试类通过 `main` 方法 + 手动断言运行
+- **Service 注解**：所有 Service 类需 `@Service` 注解才能被 Spring 注入
 
 ## 表名前缀
 
-所有表名以 `t_` 开头：`t_user`, `t_class_info`, `t_child`, `t_course`, `t_child_course`, `t_dish`, `t_weekly_menu`, `t_attendance`, `t_transfer_log`
+所有表名以 `t_` 开头：`t_user`, `t_class_info`, `t_child`, `t_course`, `t_child_course`, `t_dish`, `t_weekly_menu`, `t_attendance`, `t_transfer_log`。
 
 ## 预置账号
 

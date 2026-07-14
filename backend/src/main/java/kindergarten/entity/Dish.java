@@ -1,5 +1,7 @@
 package kindergarten.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.time.LocalDateTime;
 
 /**
@@ -10,6 +12,7 @@ import java.time.LocalDateTime;
  * @version 1.0
  * @description 对应t_dish表，存储菜品库信息
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Dish {
     private Integer id;              // 菜品ID
     private String dishName;         // 菜品名称

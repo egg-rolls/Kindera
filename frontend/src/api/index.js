@@ -49,6 +49,7 @@ export const courseApi = {
   update: (id, data) => api.put(`/courses/${id}`, data),
   delete: (id) => api.delete(`/courses/${id}`),
   getChildCourses: (childId) => api.get(`/children/${childId}/courses`),
+  getCourseStudents: (courseId) => api.get(`/courses/${courseId}/students`),
   selectCourse: (childId, courseId) => api.post(`/children/${childId}/courses/${courseId}`),
   dropCourse: (childId, courseId) => api.delete(`/children/${childId}/courses/${courseId}`)
 }
@@ -57,8 +58,13 @@ export const courseApi = {
 export const menuApi = {
   getDishes: () => api.get('/dishes'),
   createDish: (data) => api.post('/dishes', data),
+  updateDish: (id, data) => api.put(`/dishes/${id}`, data),
+  deleteDish: (id) => api.delete(`/dishes/${id}`),
+  getWeekMenu: (weekStart) => api.get('/menus', { params: { weekStart } }),
   getCurrentWeek: () => api.get('/menus/current'),
-  arrangeMenu: (data) => api.post('/menus', data)
+  arrangeMenu: (data) => api.post('/menus', data),
+  copyLastWeek: () => api.post('/menus/copy'),
+  deleteMenu: (id) => api.delete(`/menus/${id}`)
 }
 
 // 考勤 API

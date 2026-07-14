@@ -49,10 +49,8 @@
     <!-- 学员列表对话框 -->
     <el-dialog v-model="studentDialogVisible" :title="`${currentCourse?.courseName || ''} - 学员列表`" width="600px">
       <el-table :data="courseStudents" stripe border style="width: 100%">
-        <el-table-column prop="id" label="ID" width="60" />
-        <el-table-column prop="name" label="姓名" width="100" />
-        <el-table-column prop="genderName" label="性别" width="60" />
-        <el-table-column prop="className" label="班级" width="100" />
+        <el-table-column prop="childId" label="幼儿ID" width="80" />
+        <el-table-column prop="childName" label="姓名" width="120" />
         <el-table-column label="操作" width="100">
           <template #default="{ row }">
             <el-button size="small" type="danger" @click="handleDropCourse(row)">退课</el-button>
@@ -169,12 +167,8 @@ const showStudentList = async (row) => {
 }
 
 const loadCourseStudents = async (courseId) => {
-  // Reuse getAll children and filter by course, or use getChildCourses if available
-  const res = await courseApi.getAll()
-  if (res.success) {
-    const course = (res.data || []).find(c => c.id === courseId)
-    courseStudents.value = course?.students || []
-  }
+  const res = await courseApi.getCourseStudents(courseId)
+  if (res.success) courseStudents.value = res.data || []
 }
 
 const handleSelectCourse = async () => {
@@ -191,8 +185,8 @@ const handleSelectCourse = async () => {
 }
 
 const handleDropCourse = async (row) => {
-  await ElMessageBox.confirm(`确认为「${row.name}」退选此课程？`, '确认退课', { type: 'warning' })
-  const res = await courseApi.dropCourse(row.id, currentCourse.value.id)
+  await ElMessageBox.confirm(`确认为「${row.childName}」退选此课程？`, '确认退课', { type: 'warning' })
+  const res = await courseApi.dropCourse(row.childId, currentCourse.value.id)
   if (res.success) {
     ElMessage.success('退课成功')
     loadCourseStudents(currentCourse.value.id)

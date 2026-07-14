@@ -138,6 +138,21 @@ public class CourseController {
     }
 
     /**
+     * 获取课程的学员列表
+     *
+     * @param courseId 课程ID
+     * @return 学员列表
+     */
+    @GetMapping("/courses/{courseId}/students")
+    public Map<String, Object> getCourseStudents(@PathVariable int courseId) {
+        Map<String, Object> result = new HashMap<>();
+        List<ChildCourse> students = courseService.getCourseStudents(courseId);
+        result.put("success", true);
+        result.put("data", students);
+        return result;
+    }
+
+    /**
      * 为幼儿退课
      *
      * @param childId  幼儿ID

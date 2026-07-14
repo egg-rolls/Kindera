@@ -7,6 +7,8 @@ import kindergarten.entity.Child;
 import kindergarten.entity.ClassInfo;
 import kindergarten.exception.DataAccessException;
 
+import org.springframework.stereotype.Service;
+
 import java.util.List;
 
 /**
@@ -17,6 +19,7 @@ import java.util.List;
  * @version 1.0
  * @description 处理幼儿信息的增删改查业务，包含数据校验和级联操作
  */
+@Service
 public class ChildService {
     private final ChildDao childDao = new ChildDao();
     private final ChildCourseDao childCourseDao = new ChildCourseDao();

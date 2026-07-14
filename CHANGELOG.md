@@ -2,6 +2,31 @@
 
 本项目遵循 [语义化版本控制](https://semver.org/lang/zh-CN/)。
 
+## [2.0.0] - 2026-07-13
+
+### 新增
+- 全栈 Web 应用架构（前后端分离）
+- Spring Boot 2.7.18 后端 REST API
+- Vue 3 + Vite + Element Plus 前端管理界面
+- Docker Compose 一键部署（MySQL + Spring Boot + Nginx）
+- 8 个 REST API 控制器（Auth, Child, Class, Course, Menu, Attendance, Transfer, Statistics）
+- 前端路由管理（Vue Router）
+- 前端 API 封装（Axios）
+- 跨域配置（CorsConfig）
+- 数据库健康检查
+- Nginx 反向代理配置
+
+### 优化
+- 数据库连接通过环境变量配置
+- 前端响应式设计
+- 统一的错误处理机制
+- 完善的日志记录
+
+### 技术栈升级
+- 后端：Spring Boot 2.7.18 / Java 8 / MySQL 8.0
+- 前端：Vue 3 / Vite 4 / Element Plus 2
+- 部署：Docker Compose
+
 ## [1.0.1] - 2026-07-08
 
 ### 修复

@@ -1,5 +1,7 @@
 package kindergarten.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.time.LocalDateTime;
 
 /**
@@ -10,6 +12,7 @@ import java.time.LocalDateTime;
  * @version 1.0
  * @description 对应t_course表，存储兴趣课程信息
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Course {
     private Integer id;              // 课程ID
     private String courseName;       // 课程名称

@@ -1,5 +1,7 @@
 package kindergarten.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -11,6 +13,7 @@ import java.time.LocalDateTime;
  * @version 1.0
  * @description 对应t_child表，存储幼儿基本信息
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Child {
     private Integer id;              // 幼儿ID
     private String name;             // 姓名

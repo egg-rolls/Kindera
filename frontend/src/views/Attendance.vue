@@ -44,10 +44,10 @@
         <el-table-column prop="id" label="ID" width="60" />
         <el-table-column prop="childName" label="幼儿姓名" width="120" />
         <el-table-column prop="className" label="班级" width="100" />
-        <el-table-column prop="date" label="日期" width="120" />
+        <el-table-column prop="attendDate" label="日期" width="120" />
         <el-table-column prop="statusName" label="状态" width="100">
           <template #default="{ row }">
-            <el-tag :type="row.status === 1 ? 'success' : row.status === 2 ? 'warning' : 'danger'">
+            <el-tag :type="row.status === 1 ? 'success' : row.status === 4 ? 'warning' : 'danger'">
               {{ row.statusName }}
             </el-tag>
           </template>
@@ -70,8 +70,9 @@
         <el-form-item label="状态" prop="status">
           <el-radio-group v-model="singleForm.status">
             <el-radio :value="1">出勤</el-radio>
-            <el-radio :value="2">迟到</el-radio>
-            <el-radio :value="0">缺勤</el-radio>
+            <el-radio :value="2">缺勤</el-radio>
+            <el-radio :value="3">请假</el-radio>
+            <el-radio :value="4">迟到</el-radio>
           </el-radio-group>
         </el-form-item>
         <el-form-item label="备注">
@@ -98,7 +99,9 @@
         <el-form-item label="状态" prop="status">
           <el-radio-group v-model="batchForm.status">
             <el-radio :value="1">出勤</el-radio>
-            <el-radio :value="0">缺勤</el-radio>
+            <el-radio :value="2">缺勤</el-radio>
+            <el-radio :value="3">请假</el-radio>
+            <el-radio :value="4">迟到</el-radio>
           </el-radio-group>
         </el-form-item>
         <el-form-item label="备注">
@@ -160,8 +163,8 @@ const batchRules = {
 
 const stats = computed(() => {
   const total = records.value.length
-  const present = records.value.filter(r => r.status === 1).length
-  const absent = records.value.filter(r => r.status === 0).length
+  const present = records.value.filter(r => r.status === 1 || r.status === 4).length
+  const absent = records.value.filter(r => r.status === 2).length
   const rate = total > 0 ? ((present / total) * 100).toFixed(1) : 0
   return { total, present, absent, rate }
 })

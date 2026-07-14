@@ -1,54 +1,112 @@
 # 幼儿园管理系统 — 技术规格文档（SPEC）
 
-> **文档版本：** v1.0
+> **文档版本：** v2.0
 > **创建日期：** 2026-07-06
+> **最后更新：** 2026-07-13
 > **文档性质：** 课程大作业 — 技术设计规格说明
 
 ---
 
 ## 1. 系统架构设计
 
-### 1.1 分层架构图
+### 1.1 整体架构图
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
-│                      表现层 (View Layer)                       │
-│  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐       │
-│  │LoginView │ │ChildView │ │CourseView│ │MenuView  │  ...   │
-│  └──────────┘ └──────────┘ └──────────┘ └──────────┘       │
+│                      前端层 (Frontend)                        │
+│  ┌──────────────────────────────────────────────────────┐   │
+│  │  Vue 3 + Vite + Element Plus                         │   │
+│  │  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐│   │
+│  │  │  Login   │ │Children  │ │ Courses  │ │  Menus   ││   │
+│  │  └──────────┘ └──────────┘ └──────────┘ └──────────┘│   │
+│  │  ┌──────────┐ ┌──────────┐ ┌──────────┐             │   │
+│  │  │Attendance│ │Transfers │ │Dashboard │             │   │
+│  │  └──────────┘ └──────────┘ └──────────┘             │   │
+│  └──────────────────────────────────────────────────────┘   │
 ├──────────────────────────────────────────────────────────────┤
-│                      业务层 (Service Layer)                    │
-│  ┌──────────────┐ ┌──────────────┐ ┌──────────────┐        │
-│  │ChildService   │ │CourseService  │ │MenuService   │  ...   │
-│  └──────────────┘ └──────────────┘ └──────────────┘        │
+│                      Nginx 反向代理                           │
+│                    (端口 80, /api 代理)                        │
 ├──────────────────────────────────────────────────────────────┤
-│                      数据层 (DAO Layer)                        │
-│  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐       │
-│  │ChildDao  │ │CourseDao │ │MenuDao   │ │AttendDao │  ...   │
-│  └──────────┘ └──────────┘ └──────────┘ └──────────┘       │
+│                      后端层 (Backend)                         │
+│  ┌──────────────────────────────────────────────────────┐   │
+│  │  Spring Boot 2.7.18 REST API                         │   │
+│  │  ┌────────────┐ ┌────────────┐ ┌────────────┐       │   │
+│  │  │Controller  │ │  Service   │ │    DAO     │       │   │
+│  │  │  (8个)     │ │   (7个)    │ │   (9个)    │       │   │
+│  │  └────────────┘ └────────────┘ └────────────┘       │   │
+│  │  ┌────────────┐ ┌────────────┐ ┌────────────┐       │   │
+│  │  │  Entity    │ │  Config    │ │   Util     │       │   │
+│  │  │  (9个)     │ │   (1个)    │ │   (3个)    │       │   │
+│  │  └────────────┘ └────────────┘ └────────────┘       │   │
+│  └──────────────────────────────────────────────────────┘   │
 ├──────────────────────────────────────────────────────────────┤
-│                      实体层 (Entity Layer)                     │
-│  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐       │
-│  │  Child   │ │  Course  │ │  ClassInfo│ │Attendance│  ...   │
-│  └──────────┘ └──────────┘ └──────────┘ └──────────┘       │
-├──────────────────────────────────────────────────────────────┤
-│                      工具层 (Util Layer)                       │
-│  ┌──────────┐ ┌──────────┐ ┌──────────────┐                 │
-│  │DBUtil    │ │InputUtil │ │InitDatabase  │                 │
-│  └──────────┘ └──────────┘ └──────────────┘                 │
-├──────────────────────────────────────────────────────────────┤
-│                     MySQL 数据库                               │
+│                      数据库层 (Database)                      │
+│  ┌──────────────────────────────────────────────────────┐   │
+│  │  MySQL 8.0                                           │   │
+│  │  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐│   │
+│  │  │t_user    │ │t_class   │ │t_child   │ │t_course  ││   │
+│  │  └──────────┘ └──────────┘ └──────────┘ └──────────┘│   │
+│  │  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐│   │
+│  │  │t_child   │ │t_dish    │ │t_weekly  │ │t_attend  ││   │
+│  │  │_course   │ │          │ │_menu     │ │ance      ││   │
+│  │  └──────────┘ └──────────┘ └──────────┘ └──────────┘│   │
+│  │  ┌──────────┐                                        │   │
+│  │  │t_transfer│                                        │   │
+│  │  │_log      │                                        │   │
+│  │  └──────────┘                                        │   │
+│  └──────────────────────────────────────────────────────┘   │
 └──────────────────────────────────────────────────────────────┘
 ```
 
-### 1.2 包结构设计
+### 1.2 前后端分离架构
 
 ```
-com.kindergarten
-├── entity          // 实体类（数据模型）
+┌─────────────┐    HTTP/REST    ┌─────────────┐    JDBC    ┌─────────────┐
+│   Frontend  │ ◄─────────────► │   Backend   │ ◄────────► │   MySQL     │
+│   (Vue 3)   │    JSON API     │ (Spring Boot)│            │   8.0       │
+│   Port 80   │                 │  Port 8080  │            │  Port 3306  │
+└─────────────┘                 └─────────────┘            └─────────────┘
+```
+
+### 1.3 后端包结构设计
+
+```
+kindergarten
+├── controller      // REST API 控制器
+│   ├── AuthController.java
+│   ├── ChildController.java
+│   ├── ClassController.java
+│   ├── CourseController.java
+│   ├── MenuController.java
+│   ├── AttendanceController.java
+│   ├── TransferController.java
+│   └── StatisticsController.java
+│
+├── service         // 业务逻辑层
+│   ├── UserService.java
+│   ├── ChildService.java
+│   ├── ClassService.java
+│   ├── CourseService.java
+│   ├── MenuService.java
+│   ├── AttendanceService.java
+│   ├── TransferService.java
+│   └── StatisticsService.java
+│
+├── dao             // 数据访问层
+│   ├── UserDao.java
+│   ├── ChildDao.java
+│   ├── ClassDao.java
+│   ├── CourseDao.java
+│   ├── ChildCourseDao.java
+│   ├── DishDao.java
+│   ├── MenuDao.java
+│   ├── AttendanceDao.java
+│   └── TransferLogDao.java
+│
+├── entity          // 实体类
 │   ├── User.java
-│   ├── Child.java
 │   ├── ClassInfo.java
+│   ├── Child.java
 │   ├── Course.java
 │   ├── ChildCourse.java
 │   ├── Dish.java
@@ -56,40 +114,45 @@ com.kindergarten
 │   ├── Attendance.java
 │   └── TransferLog.java
 │
-├── dao             // 数据访问层（数据库操作）
-│   ├── UserDao.java
-│   ├── ChildDao.java
-│   ├── ClassDao.java
-│   ├── CourseDao.java
-│   ├── DishDao.java
-│   ├── MenuDao.java
-│   ├── AttendanceDao.java
-│   └── TransferLogDao.java
+├── config          // 配置类
+│   └── CorsConfig.java
 │
-├── service         // 业务逻辑层
-│   ├── UserService.java
-│   ├── ChildService.java
-│   ├── CourseService.java
-│   ├── MenuService.java
-│   ├── AttendanceService.java
-│   ├── TransferService.java
-│   └── StatisticsService.java
-│
-├── view            // 表现层（控制台界面）
-│   ├── LoginView.java
-│   ├── MainView.java
-│   ├── AdminView.java
-│   ├── TeacherView.java
-│   ├── ChildView.java
-│   ├── CourseView.java
-│   ├── MenuView.java
-│   ├── AttendanceView.java
-│   └── StatisticsView.java
+├── exception       // 异常类
+│   └── DataAccessException.java
 │
 └── util            // 工具类
     ├── DBUtil.java
-    ├── InputUtil.java
+    ├── PasswordUtil.java
     └── InitDatabase.java
+```
+
+### 1.4 前端结构设计
+
+```
+frontend
+├── src/
+│   ├── views/              // 页面组件
+│   │   ├── Login.vue       // 登录页面
+│   │   ├── Layout.vue      // 布局组件
+│   │   ├── Dashboard.vue   // 仪表盘
+│   │   ├── Children.vue    // 幼儿管理
+│   │   ├── Courses.vue     // 课程管理
+│   │   ├── Menus.vue       // 食谱管理
+│   │   ├── Attendance.vue  // 考勤管理
+│   │   └── Transfers.vue   // 调班管理
+│   │
+│   ├── api/                // API 封装
+│   │   └── index.js        // Axios 实例和请求方法
+│   │
+│   ├── router/             // 路由配置
+│   │   └── index.js        // Vue Router 配置
+│   │
+│   ├── App.vue             // 根组件
+│   └── main.js             // 入口文件
+│
+├── index.html              // HTML 模板
+├── package.json            // npm 配置
+└── vite.config.js          // Vite 配置
 ```
 
 ## 2. 数据库设计
@@ -119,7 +182,7 @@ ClassInfo ── 1:N ──── TransferLog
 CREATE TABLE t_user (
     id          INT PRIMARY KEY AUTO_INCREMENT COMMENT '用户ID',
     username    VARCHAR(30) NOT NULL UNIQUE    COMMENT '用户名',
-    password    VARCHAR(50) NOT NULL           COMMENT '密码（明文存储，课程作业级别）',
+    password    VARCHAR(100) NOT NULL          COMMENT '密码（SHA-256哈希）',
     real_name   VARCHAR(30) NOT NULL           COMMENT '真实姓名',
     role        TINYINT NOT NULL DEFAULT 2     COMMENT '角色：1=管理员 2=教师',
     class_id    INT DEFAULT NULL               COMMENT '教师负责班级ID（管理员为NULL）',
@@ -241,124 +304,95 @@ CREATE TABLE t_transfer_log (
 ) COMMENT '调班记录表';
 ```
 
-## 3. 核心类设计
+## 3. API 接口设计
 
-### 3.1 实体类示例 — Child.java
+### 3.1 REST API 端点
 
-```java
-package com.kindergarten.entity;
+| 路径 | 方法 | 说明 | 请求参数 |
+|------|------|------|----------|
+| `/api/auth/login` | POST | 用户登录 | `{username, password}` |
+| `/api/children` | GET | 获取幼儿列表 | `?classId=&name=` |
+| `/api/children` | POST | 添加幼儿 | `{name, gender, birthDate, ...}` |
+| `/api/children/{id}` | PUT | 修改幼儿 | `{name, gender, ...}` |
+| `/api/children/{id}` | DELETE | 删除幼儿 | - |
+| `/api/classes` | GET | 获取班级列表 | - |
+| `/api/courses` | GET | 获取课程列表 | - |
+| `/api/courses` | POST | 添加课程 | `{courseName, maxCount}` |
+| `/api/courses/{id}` | PUT | 修改课程 | `{courseName, maxCount}` |
+| `/api/courses/{id}` | DELETE | 删除课程 | - |
+| `/api/menus` | GET | 获取食谱 | `?weekStart=` |
+| `/api/menus` | POST | 添加食谱 | `{weekStart, dayOfWeek, ...}` |
+| `/api/attendance` | GET | 获取考勤记录 | `?childId=&date=` |
+| `/api/attendance` | POST | 添加考勤 | `{childId, date, status}` |
+| `/api/attendance/batch` | POST | 批量考勤 | `{date, records: [...]}` |
+| `/api/transfers` | POST | 调班操作 | `{childId, newClassId}` |
+| `/api/statistics/*` | GET | 数据统计 | - |
 
-import java.time.LocalDate;
+### 3.2 响应格式
 
-/**
- * 幼儿实体类
- *
- * @author [编写者姓名]
- * @date 2026-07-xx
- * @version 1.0
- * @description 对应数据库 t_child 表，存储幼儿基本信息
- */
-public class Child {
-    private Integer id;            // 幼儿ID
-    private String name;           // 姓名
-    private String gender;         // 性别：M/F
-    private LocalDate birthDate;   // 出生日期
-    private String parentName;     // 家长姓名
-    private String parentPhone;    // 家长电话
-    private Integer classId;       // 所在班级ID
-    private String className;      // 所在班级名称（关联查询用，非数据库字段）
-    private LocalDate enrollmentDate; // 入园日期
-    private Integer status;        // 状态：1在园 0离园
-
-    // getter/setter 省略
+```json
+{
+  "code": 200,
+  "message": "success",
+  "data": { ... }
 }
 ```
 
-### 3.2 DAO层示例 — ChildDao.java
+## 4. 核心类设计
+
+### 4.1 Controller 示例 — ChildController.java
 
 ```java
-package com.kindergarten.dao;
-
-import com.kindergarten.entity.Child;
-import java.util.List;
-
-/**
- * 幼儿数据访问对象
- *
- * @author [编写者姓名]
- * @date 2026-07-xx
- * @version 1.0
- * @description 封装幼儿表的数据库CRUD操作
- */
-public class ChildDao {
-
-    /**
-     * 添加幼儿
-     * @param child 幼儿实体对象
-     * @return 新增记录的ID
-     */
-    public int insert(Child child) { ... }
-
-    /**
-     * 根据ID查询幼儿（含班级名称）
-     * @param id 幼儿ID
-     * @return 幼儿实体，不存在返回null
-     */
-    public Child selectById(int id) { ... }
-
-    /**
-     * 根据班级ID查询所有在园幼儿
-     * @param classId 班级ID
-     * @return 幼儿列表
-     */
-    public List<Child> selectByClassId(int classId) { ... }
-
-    /**
-     * 修改幼儿信息（不含班级，班级通过调班接口修改）
-     * @param child 幼儿实体
-     * @return 影响行数
-     */
-    public int update(Child child) { ... }
-
-    /**
-     * 软删除幼儿（设置status=0）
-     * @param id 幼儿ID
-     * @return 影响行数
-     */
-    public int delete(int id) { ... }
+@RestController
+@RequestMapping("/api/children")
+public class ChildController {
+    
+    @Autowired
+    private ChildService childService;
+    
+    @GetMapping
+    public List<Child> getChildren(
+            @RequestParam(required = false) Integer classId,
+            @RequestParam(required = false) String name) {
+        return childService.getChildren(classId, name);
+    }
+    
+    @PostMapping
+    public Child addChild(@RequestBody Child child) {
+        return childService.addChild(child);
+    }
+    
+    @PutMapping("/{id}")
+    public Child updateChild(@PathVariable int id, @RequestBody Child child) {
+        child.setId(id);
+        return childService.updateChild(child);
+    }
+    
+    @DeleteMapping("/{id}")
+    public void deleteChild(@PathVariable int id) {
+        childService.deleteChild(id);
+    }
 }
 ```
 
-### 3.3 Service层示例 — CourseService.java
+### 4.2 Service 示例 — CourseService.java
 
 ```java
-package com.kindergarten.service;
-
-import com.kindergarten.dao.CourseDao;
-import com.kindergarten.dao.ChildCourseDao;
-
-/**
- * 课程业务逻辑层
- *
- * @author [编写者姓名]
- * @date 2026-07-xx
- * @version 1.0
- * @description 处理课程相关业务：选课、退课、容量校验等
- */
+@Service
 public class CourseService {
-    private CourseDao courseDao = new CourseDao();
-    private ChildCourseDao childCourseDao = new ChildCourseDao();
-
+    
+    @Autowired
+    private CourseDao courseDao;
+    
+    @Autowired
+    private ChildCourseDao childCourseDao;
+    
     /**
      * 为幼儿选课
      * 业务规则：
      *   1. 每人最多选4门课
      *   2. 不可重复选同一门课
      *   3. 课程人数未达上限
-     *
-     * @param childId  幼儿ID
-     * @param courseId 课程ID
-     * @return 选课结果描述
      */
     public String selectCourse(int childId, int courseId) {
         // 1. 查询该幼儿已选课程数
@@ -383,110 +417,81 @@ public class CourseService {
 }
 ```
 
-### 3.4 工具类 — DBUtil.java
+### 4.3 前端 API 封装 — api/index.js
 
-```java
-package com.kindergarten.util;
+```javascript
+import axios from 'axios'
 
-import java.sql.*;
+const api = axios.create({
+  baseURL: '/api',
+  timeout: 10000
+})
 
-/**
- * 数据库连接工具类
- *
- * @author [编写者姓名]
- * @date 2026-07-xx
- * @version 1.0
- * @description 提供MySQL数据库连接和资源关闭的统一管理
- */
-public class DBUtil {
-    private static final String URL      = "jdbc:mysql://localhost:3306/kindergarten?useSSL=false&serverTimezone=Asia/Shanghai&characterEncoding=utf8";
-    private static final String USERNAME = "root";
-    private static final String PASSWORD = "123456";
+// 请求拦截器
+api.interceptors.request.use(config => {
+  const token = localStorage.getItem('token')
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`
+  }
+  return config
+})
 
-    /**
-     * 获取数据库连接
-     * @return Connection对象
-     * @throws SQLException 连接失败时抛出
-     */
-    public static Connection getConnection() throws SQLException {
-        return DriverManager.getConnection(URL, USERNAME, PASSWORD);
-    }
+// 响应拦截器
+api.interceptors.response.use(
+  response => response.data,
+  error => {
+    console.error('API Error:', error)
+    return Promise.reject(error)
+  }
+)
 
-    /**
-     * 关闭数据库资源
-     */
-    public static void close(Connection conn, Statement stmt, ResultSet rs) { ... }
-}
+export default api
 ```
 
-## 4. 控制台交互设计
+## 5. Docker 部署架构
 
-### 4.1 登录流程
+### 5.1 服务编排
 
-```
-╔══════════════════════════════════════╗
-║      幼儿园管理系统 v1.0              ║
-╠══════════════════════════════════════╣
-║  请输入用户名：admin                  ║
-║  请输入密码：******                   ║
-║                                      ║
-║  ✓ 登录成功！欢迎，管理员 张老师       ║
-╚══════════════════════════════════════╝
-```
-
-### 4.2 管理员主菜单
-
-```
-╔══════════════════════════════════════╗
-║          管理员功能菜单                ║
-╠══════════════════════════════════════╣
-║  1. 幼儿学籍管理                      ║
-║  2. 班级管理                          ║
-║  3. 课程管理                          ║
-║  4. 食谱管理                          ║
-║  5. 调班管理                          ║
-║  6. 考勤管理                          ║
-║  7. 数据统计                          ║
-║  8. 修改密码                          ║
-║  0. 退出登录                          ║
-╚══════════════════════════════════════╝
-请选择功能编号：
+```yaml
+# docker-compose.yml
+services:
+  mysql:
+    image: mysql:8.0
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    
+  backend:
+    build: ./backend
+    ports:
+      - "8080:8080"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    
+  frontend:
+    build: ./frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
 ```
 
-### 4.3 班级幼儿查询结果示例
+### 5.2 网络架构
 
 ```
-═══════════════════════════════════════════════════
-  大一班 幼儿名单（共10人）
-═══════════════════════════════════════════════════
-  编号  姓名    性别  出生日期     家长      联系电话
-───────────────────────────────────────────────────
-  1    张小明   男   2020-03-15  张大明    13800001111
-  2    李小红   女   2020-05-22  李大红    13800002222
-  3    王小华   男   2019-11-08  王大华    13800003333
-  ...
-═══════════════════════════════════════════════════
+┌─────────────────────────────────────────────────────────────┐
+│                    Docker Network                            │
+│  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐     │
+│  │   Frontend  │    │   Backend   │    │    MySQL    │     │
+│  │   (Nginx)   │───▶│ (Spring Boot)│───▶│   8.0      │     │
+│  │   Port 80   │    │  Port 8080  │    │  Port 3306  │     │
+│  └─────────────┘    └─────────────┘    └─────────────┘     │
+└─────────────────────────────────────────────────────────────┘
 ```
 
-### 4.4 统计报表示例
-
-```
-═══════════════════════════════════════════════════
-  班级人数统计
-═══════════════════════════════════════════════════
-  班级     年级   当前人数  男生  女生  容量
-───────────────────────────────────────────────────
-  大一班   大班     10      6     4    10
-  大二班   大班     10      5     5    10
-  大三班   大班      9      4     5    10
-  中一班   中班     10      5     5    10
-  ...
-  ═══════════════════════════════════════════════
-  合计              90     47    43    90
-═══════════════════════════════════════════════════
-```
-
-## 5. 预置数据初始化
+## 6. 预置数据初始化
 
 系统首次运行时，`InitDatabase` 类自动执行：
 
@@ -515,41 +520,29 @@ public class InitDatabase {
 }
 ```
 
-## 6. 团队分工建议（5人）
+## 7. 技术栈总结
 
-| 角色 | 人数 | 负责模块 | 交付物 |
-|------|------|---------|--------|
-| 组长/架构师 | 1人 | 项目架构、DBUtil、InitDatabase、登录模块 | 框架搭建 + 登录功能 |
-| 后端开发A | 1人 | 幼儿学籍 + 班级管理 + 调班管理 | Entity + DAO + Service + View |
-| 后端开发B | 1人 | 课程管理 + 食谱管理 | Entity + DAO + Service + View |
-| 后端开发C | 1人 | 考勤管理 + 数据统计 | Entity + DAO + Service + View |
-| 文档/PPT | 1人 | 项目文档 + PPT + 测试 | 文档 + 演示材料 + 测试报告 |
+| 层级 | 技术 | 版本 | 说明 |
+|------|------|------|------|
+| 后端框架 | Spring Boot | 2.7.18 | REST API 服务 |
+| 后端语言 | Java | 8 | 兼容性最好 |
+| 数据库 | MySQL | 8.0 | 关系型数据库 |
+| 数据库驱动 | MySQL Connector/J | 8.0.33 | JDBC 驱动 |
+| 前端框架 | Vue | 3.3.4 | 响应式 UI |
+| 构建工具 | Vite | 4.4.9 | 快速构建 |
+| UI 组件库 | Element Plus | 2.3.12 | 企业级组件 |
+| HTTP 客户端 | Axios | 1.4.0 | API 请求 |
+| 容器化 | Docker Compose | - | 一键部署 |
+| Web 服务器 | Nginx | Alpine | 静态托管 + 反向代理 |
 
-> **注意：** 文档角色的同学也需要参与代码审查和集成测试，确保系统整体一致性。
+## 8. 开发环境要求
 
-## 7. 开发里程碑
+### 本地开发
+- JDK 8+
+- Maven 3.6+
+- Node.js 18+
+- MySQL 8.0+
 
-| 阶段 | 时间 | 目标 |
-|------|------|------|
-| 第1阶段 | 第1~2天 | 搭建项目框架、数据库初始化、登录模块 |
-| 第2阶段 | 第3~5天 | 幼儿学籍、班级管理、课程管理 |
-| 第3阶段 | 第6~7天 | 食谱管理、调班管理 |
-| 第4阶段 | 第8~9天 | 考勤管理、数据统计 |
-| 第5阶段 | 第10天 | 集成测试、Bug修复 |
-| 第6阶段 | 第11~12天 | 文档撰写、PPT制作、答辩准备 |
-
-## 8. 连接配置说明
-
-数据库连接参数集中在 `DBUtil.java` 中，部署时修改以下配置：
-
-```java
-// MySQL连接配置 — 部署时根据实际环境修改
-private static final String URL      = "jdbc:mysql://localhost:3306/kindergarten?useSSL=false&serverTimezone=Asia/Shanghai&characterEncoding=utf8";
-private static final String USERNAME = "root";
-private static final String PASSWORD = "123456";  // 修改为实际密码
-```
-
-**环境要求：**
-- MySQL 8.0+ 已安装并启动
-- 已创建数据库用户或使用root
-- MySQL Connector/J 8.0.x 驱动jar包已加入项目classpath
+### Docker 部署
+- Docker Desktop
+- 至少 4GB 可用内存

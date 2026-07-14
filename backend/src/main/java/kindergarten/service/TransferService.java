@@ -8,6 +8,8 @@ import kindergarten.entity.ClassInfo;
 import kindergarten.entity.TransferLog;
 import kindergarten.util.DBUtil;
 
+import org.springframework.stereotype.Service;
+
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
@@ -20,6 +22,7 @@ import java.util.List;
  * @version 1.0
  * @description 处理幼儿调班操作，包含容量校验和调班日志记录
  */
+@Service
 public class TransferService {
     private final ChildDao childDao = new ChildDao();
     private final ClassDao classDao = new ClassDao();

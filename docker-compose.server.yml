@@ -1,17 +1,19 @@
+# 服务器部署专用 —— 无需源码，直接拉取镜像运行
+# 用法：docker compose -f docker-compose.server.yml up -d
+
 name: kindergarten
 
 services:
-  # MySQL 数据库
   mysql:
     image: mysql:8.0
     container_name: kindergarten-mysql
+    restart: always
     environment:
       MYSQL_ROOT_PASSWORD: lirui520
       MYSQL_DATABASE: kindergarten
       MYSQL_CHARACTER_SET_SERVER: utf8mb4
       MYSQL_COLLATION_SERVER: utf8mb4_unicode_ci
-    ports:
-      - "3306:3306"
+    # 不映射端口，仅内部网络访问，避免与宿主机 MySQL 冲突
     volumes:
       - mysql-data:/var/lib/mysql
     healthcheck:
@@ -22,15 +24,12 @@ services:
     networks:
       - kindergarten-net
 
-  # Spring Boot 后端
   backend:
     image: orangeofcoffee/kindergarten-backend:latest
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
     container_name: kindergarten-backend
+    restart: always
     ports:
-      - "8080:8080"
+      - "8081:8080"
     depends_on:
       mysql:
         condition: service_healthy
@@ -39,22 +38,17 @@ services:
       DB_PORT: "3306"
       DB_USERNAME: root
       DB_PASSWORD: lirui520
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/kindergarten?useSSL=false&serverTimezone=Asia/Shanghai&characterEncoding=utf8&allowPublicKeyRetrieval=true
-      SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD: lirui520
     networks:
       - kindergarten-net
 
-  # Vue 前端
   frontend:
     image: orangeofcoffee/kindergarten-frontend:latest
-    build: ./frontend
     container_name: kindergarten-frontend
+    restart: always
     ports:
-      - "80:80"
+      - "81:80"
     depends_on:
-      backend:
-        condition: service_started
+      - backend
     networks:
       - kindergarten-net
 

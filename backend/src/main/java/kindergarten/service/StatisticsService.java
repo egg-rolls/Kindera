@@ -9,6 +9,8 @@ import kindergarten.entity.Child;
 import kindergarten.entity.Course;
 import kindergarten.exception.DataAccessException;
 
+import org.springframework.stereotype.Service;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -23,6 +25,7 @@ import java.util.Map;
  * @version 1.0
  * @description 提供班级人数、课程选课、年级分布、出勤率等统计数据
  */
+@Service
 public class StatisticsService {
     private final ClassDao classDao = new ClassDao();
     private final CourseDao courseDao = new CourseDao();

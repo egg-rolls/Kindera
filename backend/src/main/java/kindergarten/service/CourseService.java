@@ -8,6 +8,8 @@ import kindergarten.entity.Child;
 import kindergarten.entity.ChildCourse;
 import kindergarten.exception.DataAccessException;
 
+import org.springframework.stereotype.Service;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,6 +22,7 @@ import java.util.List;
  * @description 处理课程的增删改查、选课、退课等业务，
  *              包含课程容量校验和每人选课数量限制
  */
+@Service
 public class CourseService {
     private final CourseDao courseDao = new CourseDao();
     private final ChildCourseDao childCourseDao = new ChildCourseDao();

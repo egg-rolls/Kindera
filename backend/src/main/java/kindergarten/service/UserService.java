@@ -4,6 +4,7 @@ import kindergarten.dao.UserDao;
 import kindergarten.entity.User;
 import kindergarten.exception.DataAccessException;
 import kindergarten.util.PasswordUtil;
+import org.springframework.stereotype.Service;
 
 /**
  * 用户业务逻辑层
@@ -13,6 +14,7 @@ import kindergarten.util.PasswordUtil;
  * @version 1.0
  * @description 处理用户登录认证和密码修改业务
  */
+@Service
 public class UserService {
     private final UserDao userDao = new UserDao();
 

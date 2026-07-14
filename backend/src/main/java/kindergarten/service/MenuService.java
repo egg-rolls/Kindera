@@ -6,6 +6,8 @@ import kindergarten.entity.Dish;
 import kindergarten.entity.WeeklyMenu;
 import kindergarten.exception.DataAccessException;
 
+import org.springframework.stereotype.Service;
+
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -19,6 +21,7 @@ import java.util.List;
  * @version 1.0
  * @description 处理菜品库管理和每周排餐业务
  */
+@Service
 public class MenuService {
     private final DishDao dishDao = new DishDao();
     private final MenuDao menuDao = new MenuDao();
@@ -189,6 +192,21 @@ public class MenuService {
             return menuDao.selectByWeek(weekStart);
         } catch (DataAccessException e) {
             return new ArrayList<>();
+        }
+    }
+
+    /**
+     * 删除单条食谱记录
+     *
+     * @param id 记录ID
+     * @return 结果描述
+     */
+    public String deleteMenu(int id) {
+        try {
+            int rows = menuDao.deleteById(id);
+            return rows > 0 ? "食谱已删除" : "删除失败";
+        } catch (DataAccessException e) {
+            return "操作失败：" + e.getMessage();
         }
     }
 

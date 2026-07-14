@@ -6,6 +6,8 @@ import kindergarten.entity.Attendance;
 import kindergarten.entity.Child;
 import kindergarten.exception.DataAccessException;
 
+import org.springframework.stereotype.Service;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +20,7 @@ import java.util.List;
  * @version 1.0
  * @description 处理每日考勤打卡、历史查询和出勤率统计
  */
+@Service
 public class AttendanceService {
     private final AttendanceDao attendanceDao = new AttendanceDao();
     private final ChildDao childDao = new ChildDao();

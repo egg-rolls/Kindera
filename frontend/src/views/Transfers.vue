@@ -14,8 +14,8 @@
       <el-table :data="transfers" stripe border style="width: 100%" v-loading="loading">
         <el-table-column prop="id" label="ID" width="60" />
         <el-table-column prop="childName" label="幼儿姓名" width="120" />
-        <el-table-column prop="fromClassName" label="原班级" width="120" />
-        <el-table-column prop="toClassName" label="目标班级" width="120" />
+        <el-table-column prop="oldClassName" label="原班级" width="120" />
+        <el-table-column prop="newClassName" label="目标班级" width="120" />
         <el-table-column prop="transferDate" label="调班日期" width="120" />
         <el-table-column prop="reason" label="调班原因" min-width="200" />
         <el-table-column prop="operatorName" label="操作人" width="100" />
@@ -74,6 +74,30 @@ const form = reactive({
   reason: ''
 })
 
+const handleSubmit = async () => {
+  await formRef.value.validate()
+  submitting.value = true
+  try {
+    const user = JSON.parse(localStorage.getItem('user') || '{}')
+    const payload = {
+      childId: form.childId,
+      newClassId: form.toClassId,
+      operatorId: user.id || 1,
+      remark: form.reason
+    }
+    const res = await transferApi.transfer(payload)
+    if (res.success) {
+      ElMessage.success('调班成功')
+      dialogVisible.value = false
+      loadTransfers()
+    } else {
+      ElMessage.error(res.message)
+    }
+  } finally {
+    submitting.value = false
+  }
+}
+
 const rules = {
   childId: [{ required: true, message: '请选择幼儿', trigger: 'change' }],
   toClassId: [{ required: true, message: '请选择目标班级', trigger: 'change' }],
@@ -121,23 +145,6 @@ const showTransferDialog = () => {
 
 const onChildChange = () => {
   form.toClassId = null
-}
-
-const handleSubmit = async () => {
-  await formRef.value.validate()
-  submitting.value = true
-  try {
-    const res = await transferApi.transfer(form)
-    if (res.success) {
-      ElMessage.success('调班成功')
-      dialogVisible.value = false
-      loadTransfers()
-    } else {
-      ElMessage.error(res.message)
-    }
-  } finally {
-    submitting.value = false
-  }
 }
 
 onMounted(() => {
